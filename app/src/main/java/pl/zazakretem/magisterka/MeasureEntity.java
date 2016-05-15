@@ -14,11 +14,18 @@ public class MeasureEntity {
     private int _id;
     private Type _type;
     private float _value;
+    private int _time;
 
-    public MeasureEntity(int id, Type type, float value) {
+    public MeasureEntity()
+    {
+
+    }
+
+    public MeasureEntity(int id, Type type, float value, int time) {
         this._id = id;
         this._type = type;
         this._value = value;
+        this._time = time;
     }
 
     public MeasureEntity(Type type, float value) {
@@ -49,4 +56,8 @@ public class MeasureEntity {
     public void setValue(float value) {
         this._value = value;
     }
+
+    public void setTime(int time) { this._time = time; }
+
+    public int getTime() { return _time; }
 }

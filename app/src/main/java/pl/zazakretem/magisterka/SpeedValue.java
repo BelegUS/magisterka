@@ -10,7 +10,6 @@ public class SpeedValue extends AbstractValue
 
     public SpeedValue setSpeedValue(float speedValue)
     {
-        Log.d("KITTEN", String.valueOf(speedValue));
         this.speedValue = speedValue;
         this.calculate();
         return this;
@@ -23,7 +22,14 @@ public class SpeedValue extends AbstractValue
 
     public float getSpeed()
     {
-        return speed.getAveraged();
+        float averagedSpeed = speed.getAveraged();
+//        this.db.addMeasure(new MeasureEntity(MeasureEntity.Type.SPEED, averagedSpeed));
+        return averagedSpeed;
+    }
+
+    public float getMaxSpeed()
+    {
+        return speed.getMax();
     }
 
 }

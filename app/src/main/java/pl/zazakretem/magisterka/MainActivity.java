@@ -23,6 +23,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener {
@@ -41,17 +43,16 @@ public class MainActivity extends AppCompatActivity
     private Sensor accelerometer;
     private Sensor magnetometer;
 
-
     private LocationManager locationManager;
 
     private RotationValue rotationValue = new RotationValue();
     private AccelerometerValue accelerometerValue = new AccelerometerValue();
     private SpeedValue speedValue = new SpeedValue();
 
-    private float maxXValue = 0;
-    private float maxYValue = 0;
-    private float maxZValue = 0;
+    private DatabaseHandler db;
 
+    float xValue = 0, yValue = 0, zValue = 0;
+    float maxXValue = 0, maxYValue = 0, maxZValue = 0;
 
     private TextView xValueTextView;
     private TextView yValueTextView;
@@ -67,6 +68,11 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        db = new DatabaseHandler(this.getApplicationContext());
+        rotationValue.setDbConnection(db);
+        accelerometerValue.setDbConnection(db);
+        speedValue.setDbConnection(db);
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         linearAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
@@ -137,18 +143,15 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_accelerometer) {
-            this.clearValues();
             this.selectedSensor = SelectedSensor.ACCELEROMETER;
         } else if (id == R.id.nav_rotation) {
-            this.clearValues();
             this.selectedSensor = SelectedSensor.ROTATION;
         } else if (id == R.id.nav_gps) {
-            this.clearValues();
             this.selectedSensor = SelectedSensor.GPS_SPEED;
         } else if (id == R.id.nav_location) {
-
+//            List<MeasureEntity> list = this.db.getAllMeasures();
+//            list.size();
         } else if (id == R.id.nav_ssm) {
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -156,15 +159,9 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void clearValues()
-    {
-        this.maxXValue = this.maxYValue = this.maxZValue = 0;
-    }
-
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         Sensor sensor = sensorEvent.sensor;
-        float xValue = 0, yValue = 0, zValue = 0;
 
         if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION && this.selectedSensor == SelectedSensor.ACCELEROMETER) {
             accelerometerValue.setAccelerometerValues(sensorEvent.values);
@@ -172,6 +169,10 @@ public class MainActivity extends AppCompatActivity
             xValue = accelerometerValue.getGForceX();
             yValue = accelerometerValue.getGForceY();
             zValue = accelerometerValue.getGForceZ();
+
+            maxXValue = accelerometerValue.getMaxGForceX();
+            maxYValue = accelerometerValue.getMaxGForceY();
+            maxZValue = accelerometerValue.getMaxGForceZ();
         } else if(this.selectedSensor == SelectedSensor.ROTATION) {
             if(sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 rotationValue.setGravityValues(sensorEvent.values);
@@ -182,20 +183,14 @@ public class MainActivity extends AppCompatActivity
             xValue = rotationValue.getAzimuth();
             yValue = rotationValue.getPitch();
             zValue = rotationValue.getRoll();
+
+            maxXValue = rotationValue.getMaxAzimuth();
+            maxYValue = rotationValue.getMaxPitch();
+            maxZValue = rotationValue.getMaxRoll();
         } else if(this.selectedSensor == SelectedSensor.GPS_SPEED) {
             xValue = speedValue.getSpeed();
+            maxXValue = speedValue.getMaxSpeed();
         }
-
-        if(xValue > maxXValue) {
-            maxXValue = xValue;
-        }
-        if(yValue > maxYValue) {
-            maxYValue = yValue;
-        }
-        if(zValue > maxZValue) {
-            maxZValue = zValue;
-        }
-
         xValueTextView.setText(String.valueOf(xValue));
         yValueTextView.setText(String.valueOf(yValue));
         zValueTextView.setText(String.valueOf(zValue));

@@ -2,6 +2,8 @@ package pl.zazakretem.magisterka;
 
 import android.hardware.SensorManager;
 
+import java.util.List;
+
 public class RotationValue extends AbstractValue {
     private Value azimuth = new Value();
     private Value pitch = new Value();
@@ -12,17 +14,38 @@ public class RotationValue extends AbstractValue {
 
     public float getAzimuth()
     {
-        return (float)Math.toDegrees(this.azimuth.getAveraged());
+        float averagedAzimuth = (float)Math.toDegrees(this.azimuth.getAveraged());
+//        this.db.addMeasure(new MeasureEntity(MeasureEntity.Type.ROTATION_AZIMUTH, averagedAzimuth));
+        return averagedAzimuth;
     }
 
     public float getPitch()
     {
-        return (float)Math.toDegrees(this.pitch.getAveraged());
+        float averagedPitch = (float)Math.toDegrees(this.pitch.getAveraged());
+//        this.db.addMeasure(new MeasureEntity(MeasureEntity.Type.ROTATION_PITCH, averagedPitch));
+        return averagedPitch;
     }
 
     public float getRoll()
     {
-        return (float)Math.toDegrees(this.roll.getAveraged());
+        float averagedRoll = (float)Math.toDegrees(this.roll.getAveraged());
+//        this.db.addMeasure(new MeasureEntity(MeasureEntity.Type.ROTATION_ROLL, averagedRoll));
+        return averagedRoll;
+    }
+
+    public float getMaxAzimuth()
+    {
+        return (float)Math.toDegrees(this.azimuth.getMax());
+    }
+
+    public float getMaxPitch()
+    {
+        return (float)Math.toDegrees(this.pitch.getMax());
+    }
+
+    public float getMaxRoll()
+    {
+        return (float)Math.toDegrees(this.roll.getMax());
     }
 
     public RotationValue setGeomagneticValues(float[] geomagneticValues)
@@ -50,5 +73,4 @@ public class RotationValue extends AbstractValue {
         this.pitch.add(results[1]);
         this.roll.add(results[2]);
     }
-
 }

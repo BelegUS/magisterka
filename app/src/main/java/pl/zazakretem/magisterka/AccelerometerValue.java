@@ -14,18 +14,33 @@ public class AccelerometerValue extends AbstractValue {
     }
 
     public float getGForceX() {
-        return calculateGForce(accelerometerValues[0]);
-//        return x.getNext();
+        float nextX = x.getNext();
+//        this.db.addMeasure(new MeasureEntity(MeasureEntity.Type.GFORCE_X, nextX));
+        return nextX;
     }
 
     public float getGForceY() {
-        return calculateGForce(accelerometerValues[1]);
-//        return y.getNext();
+        float nextY = y.getNext();
+//        this.db.addMeasure(new MeasureEntity(MeasureEntity.Type.GFORCE_Y, nextY));
+        return nextY;
     }
 
     public float getGForceZ() {
-        return calculateGForce(accelerometerValues[2]);
-//        return z.getNext();
+        float nextZ = z.getNext();
+//        this.db.addMeasure(new MeasureEntity(MeasureEntity.Type.GFORCE_Z, nextZ));
+        return nextZ;
+    }
+
+    public float getMaxGForceX() {
+        return x.getMax();
+    }
+
+    public float getMaxGForceY() {
+        return y.getMax();
+    }
+
+    public float getMaxGForceZ() {
+        return z.getMax();
     }
 
     private void calculate() {
@@ -36,7 +51,7 @@ public class AccelerometerValue extends AbstractValue {
 
     private float calculateGForce(float value) {
         float g = 9.8f;
-        return Math.abs(value / g);
+        return (value / g);
     }
 
 }

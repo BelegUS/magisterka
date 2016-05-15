@@ -19,8 +19,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // Contacts Table Columns names
     private static final String KEY_ID = "id";
-    private static final String KEY_NAME = "name";
-    private static final String KEY_PH_NO = "phone_number";
+    private static final String KEY_TYPE = "type";
+    private static final String KEY_VALUE = "value";
+    private static final String KEY_TIME = "time";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -29,10 +30,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_MEASURES + "("
-                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT,"
-                + KEY_PH_NO + " TEXT" + ")";
-        db.execSQL(CREATE_CONTACTS_TABLE);
+        String CREATE_MEASURES_TABLE = "CREATE TABLE " + TABLE_MEASURES + "("
+                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_TYPE + " TEXT,"
+                + KEY_VALUE + " INTEGER,"
+                + KEY_TIME + " INTEGER" + ")";
+        db.execSQL(CREATE_MEASURES_TABLE);
     }
 
     // Upgrading database
@@ -50,12 +52,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      */
 
     // Adding new contact
-    void addContact(Contact contact) {
+    void addMeasure(MeasureEntity measure) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_NAME, contact.getName()); // Contact Name
-        values.put(KEY_PH_NO, contact.getPhoneNumber()); // Contact Phone
+        values.put(KEY_TYPE, measure.getType().name());
+        values.put(KEY_VALUE, measure.getValue());
+        values.put(KEY_TIME, System.currentTimeMillis());
 
         // Inserting Row
         db.insert(TABLE_MEASURES, null, values);
@@ -63,24 +66,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     // Getting single contact
-    Contact getContact(int id) {
+    MeasureEntity getMeasure(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_MEASURES, new String[] { KEY_ID,
-                        KEY_NAME, KEY_PH_NO }, KEY_ID + "=?",
+                        KEY_TYPE, KEY_VALUE }, KEY_ID + "=?",
                 new String[] { String.valueOf(id) }, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
 
-        Contact contact = new Contact(Integer.parseInt(cursor.getString(0)),
-                cursor.getString(1), cursor.getString(2));
-        // return contact
-        return contact;
+        MeasureEntity measure = new MeasureEntity(Integer.parseInt(cursor.getString(0)),
+                MeasureEntity.Type.valueOf(cursor.getString(1)), cursor.getFloat(2), cursor.getInt(3));
+        return measure;
     }
 
     // Getting All Contacts
-    public List<Contact> getAllContacts() {
-        List<Contact> contactList = new ArrayList<Contact>();
+    public List<MeasureEntity> getAllMeasures() {
+        List<MeasureEntity> measureList = new ArrayList<MeasureEntity>();
         // Select All Query
         String selectQuery = "SELECT  * FROM " + TABLE_MEASURES;
 
@@ -90,37 +92,38 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                Contact contact = new Contact();
-                contact.setID(Integer.parseInt(cursor.getString(0)));
-                contact.setName(cursor.getString(1));
-                contact.setPhoneNumber(cursor.getString(2));
+                MeasureEntity measure = new MeasureEntity();
+                measure.setId(Integer.parseInt(cursor.getString(0)));
+                measure.setType(MeasureEntity.Type.valueOf(cursor.getString(1)));
+                measure.setValue(cursor.getFloat(2));
+                measure.setTime(cursor.getInt(3));
                 // Adding contact to list
-                contactList.add(contact);
+                measureList.add(measure);
             } while (cursor.moveToNext());
         }
 
         // return contact list
-        return contactList;
+        return measureList;
     }
 
     // Updating single contact
-    public int updateContact(Contact contact) {
+    public int updateMeasure(MeasureEntity measure) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_NAME, contact.getName());
-        values.put(KEY_PH_NO, contact.getPhoneNumber());
+        values.put(KEY_TYPE, measure.getType().name());
+        values.put(KEY_VALUE, measure.getValue());
 
         // updating row
         return db.update(TABLE_MEASURES, values, KEY_ID + " = ?",
-                new String[] { String.valueOf(contact.getID()) });
+                new String[] { String.valueOf(measure.getId()) });
     }
 
     // Deleting single contact
-    public void deleteContact(Contact contact) {
+    public void deleteMeasure(MeasureEntity measure) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_MEASURES, KEY_ID + " = ?",
-                new String[] { String.valueOf(contact.getID()) });
+                new String[] { String.valueOf(measure.getId()) });
         db.close();
     }
 
